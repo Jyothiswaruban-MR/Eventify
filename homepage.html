@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventify - One Stop for all of your events</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Add this to your HTML <head> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    /* General reset and box sizing */
+    <style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif; /* Consider a fallback font */
+    }
+
+    body {
+    background: url('images/intro_hero_img.jpg') no-repeat center center;
+    background-size: cover;
+    color: white;
+    text-align: center;
+    }
+
+    /* Header styling */
+    header {
+    background: #ffffff;
+    padding: 15px 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    }
+
+    /* Navbar styling */
+    nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 20px;
+    }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            font-family: 'Raleway', sans-serif;
+            color: #dd1900;
+            text-transform: uppercase;
+            margin-left: -120px;
+        }
+
+    /* Nav links */
+    .nav-links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    }
+
+    .nav-links li {
+    position: relative;
+    margin-right: 20px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    }
+
+        .nav-links li a {
+            text-decoration: none;
+            color: #071b33;
+            padding: 0 20px;
+            display: block;
+            width: 100%;
+            height: 100%;
+            line-height: 40px;
+            transition: color 0.3s, background-color 0.3s;
+            font-weight: 500; /* Slightly bold font */
+        }
+
+    .nav-links li:hover {
+    background-color: #f0f0f0;
+    transition: background-color 0.3s ease-in-out;
+    }
+
+    .nav-links li:hover a {
+    color: #FF6347;
+    text-shadow: 0 0 10px rgba(255, 99, 71, 0.6); /* Subtle glow effect */
+    }
+
+    /* Button styling */
+    .btn {
+    padding: 10px 20px;
+    background: #ffeb3b;
+    color: black;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s ease-in-out;
+    }
+
+    .btn:hover {
+    background: #ffc107;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow for effect */
+    }
+
+    /* Hero section */
+    .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding-top: 80px; /* Adjusted padding for fixed header */
+    background: rgba(0, 0, 0, 0.5); /* Darken background for better text visibility */
+    }
+
+    .hero h1 {
+    font-size: 50px;
+    font-weight: bold;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero p {
+    font-size: 20px;
+    margin: 20px 0;
+    }
+
+    .explore-btn {
+    margin-top: 10px;
+    padding: 15px 30px;
+    font-size: 18px;
+    background: #FF6347; /* Adding a contrasting button color */
+    color: white;
+    border-radius: 25px;
+    font-weight: bold;
+    text-decoration: none;
+    }
+
+    .explore-btn:hover {
+    background: #FF4500; /* Darker red on hover */
+    box-shadow: 0 5px 15px rgba(255, 99, 71, 0.3);
+    }
+
+    /* Focus styles for better accessibility */
+    nav a:focus,
+    .btn:focus {
+    outline: 2px solid #00FFFF;
+    outline-offset: 4px;
+    }
+
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Eventify</div>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#login">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section class="hero">
+        <h1>One stop for all the events!</h1>
+        <p>Join and explore the events happening near you</p>
+        <a href="#events" class="btn explore-btn">Explore Events</a>
+    </section>
+    <script src="script.js"></script>
+</body>
+</html>
