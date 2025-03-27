@@ -5,7 +5,10 @@ const userSchema = new mongoose.Schema({
     email: {type: String, required: true, unique:true},
     password: {type: String, required: true},
     role: { type: String, enum: ["participant", "organizer"], default: "participant" },
-    isActive: { type: Boolean, default: function () { return this.role === "participant" || this.role === "admin"; } }
+    isApproved: { type: Boolean, default: function () { return this.role === "participant" || this.role === "admin"; },
+    organizationId: {type: String, required: false},
+    tickets: [{ type: mongoose.Schema.Types.ObjectId, ref: 'events' }]
+}
     
 },{timestamps:true});
 
