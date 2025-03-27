@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const Event = require("../models/Events");
 const User = require("../models/User");
-
+const authenticate = require("../middleware/authentication");   
 // Create an event
-router.post("/", async (req, res) => {
+router.post("/",authenticate ,async (req, res) => {
     const { title, category, date, time, location, description, capacity } = req.body;
     try {
         const newEvent = new Event({ title, category, date, time, location, description, capacity });
@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
 });
 
 // Get event by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id",authenticate ,async (req, res) => {
     try {
         const event = await Event.findById(req.params.id);
         if (!event) return res.status(404).json({ message: "Event not found" });
@@ -29,7 +29,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Update event
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticate,async (req, res) => {
     const { title, category, date, time, location, description, capacity } = req.body;
     try {
         const updatedEvent = await Event.findByIdAndUpdate(
@@ -46,7 +46,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // Delete event
-router.delete("/:id", async (req, res) => {
+router.delete("/:id",authenticate ,async (req, res) => {
     try {
         const deletedEvent = await Event.findByIdAndDelete(req.params.id);
         if (!deletedEvent) return res.status(404).json({ message: "Event not found" });
@@ -74,8 +74,14 @@ router.post("/:eventId/register/:userId", async (req, res) => {
             return res.status(400).json({ message: "Event is full" });
         }
 
+        // Add user to event's attendee list
         event.attendees.push(user._id);
         await event.save();
+
+        // Add the event to user's tickets list
+        user.tickets.push(event._id);
+        await user.save();
+
         res.status(200).json({ message: "Registration successful", event });
     } catch (error) {
         console.error(error);
@@ -83,8 +89,9 @@ router.post("/:eventId/register/:userId", async (req, res) => {
     }
 });
 
+
 // Cancel registration
-router.post("/:eventId/cancel/:userId", async (req, res) => {
+router.post("/:eventId/cancel/:userId",authenticate, async (req, res) => {
     try {
         const event = await Event.findById(req.params.eventId);
         if (!event) return res.status(404).json({ message: "Event not found" });

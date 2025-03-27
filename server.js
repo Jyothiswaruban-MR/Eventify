@@ -18,10 +18,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const eventRoutes = require("./routes/event");
+const profileRoutes =require("./routes/profile");
 app.use("/api/events", eventRoutes)
+app.use("/api/profiles", profileRoutes)
 
 app.post("/api/auth/register", async (req, res) => {
-    const { email, password, role, isActive } = req.body;
+    const { email, password, role, isApproved, organizationId } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -31,7 +33,7 @@ app.post("/api/auth/register", async (req, res) => {
 
     try {
         // Create new user
-        const newUser = new User({ email, password, role, isActive });
+        const newUser = new User({ email, password, role, isApproved, organizationId });
         await newUser.save();
         res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
@@ -82,12 +84,15 @@ app.post("/api/admin/approve/:userId", async(req, res)=>{
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 10000
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((error) => {
     console.error("Failed to connect to MongoDB:", error);
+    process.exit(1);  // Exit process with failure code
 });
+
 
 // Start server
 app.listen(PORT, () => {
