@@ -76,9 +76,32 @@
             display: none;
             margin-top: 10px;
         }
+        .navbar {
+  width: 100%;
+  padding: 15px 30px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  margin: 0;
+  font-size: 28px;
+  color: #007bff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <h1 class="brand">Eventify</h1>
+      </div>
+      
     <div class="register-container">
         <h2>Eventify User Registration</h2>
         <form id="registerForm">
@@ -128,6 +151,24 @@
             const isOrganizer = document.getElementById('organizerCheckbox').checked;
             const organizationId = isOrganizer ? document.getElementById('organizationId').value : null;
             const isApproved = !isOrganizer; // Set isApproved to false for organizers
+
+            const nameRegex = /^[A-Za-z\s]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.(com)$/i;
+
+    if (!nameRegex.test(name)) {
+        alert("Name must contain only letters and spaces.");
+        return;
+    }
+
+    if (!emailRegex.test(email)) {
+        alert("Please enter a valid email ending with '.com'.");
+        return;
+    }
+
+    if (password.length < 8) {
+        alert("Password must be at least 8 characters long.");
+        return;
+    }
 
             // Prepare data to be sent
             const registrationData = {

@@ -3,7 +3,10 @@ const express = require("express");
 const router = express.Router();
 const Event = require("../models/Events");
 const User = require("../models/User");
+const Email = require('../models/Email');  
 const mongoose = require('mongoose');
+const sendEmail = require('../routes/mailer');
+
 
 const { verifyToken, isAdmin } = require("../middleware/authentication");
 
@@ -234,14 +237,34 @@ router.post("/:eventId/register", verifyToken, async (req, res) => {
             event.save()
         ]);
 
+        const emailContent = `Hello ${user.name},\n\nYou have successfully registered for the event "${event.title}".\n\nEvent Details:\n- Date: ${event.date}\n- Time: ${event.time}\n- Location: ${event.location}\n\nLooking forward to seeing you there!`;
+        await sendEmail(user.email, 'Event Registration Successful', emailContent);
+
+        const emailData = new Email({
+            userId: user._id,
+            eventId: event._id,
+            emailType: 'registration',
+            subject: 'Event Registration Successful',
+            content: emailContent
+        });
+        await emailData.save();
+
         console.log("✅ User and event saved successfully");
         
         // Log the user again after saving to verify the tickets were saved
         const updatedUser = await User.findById(userId);
         console.log("✅ User after save:", updatedUser);
 
+        await sendEmail(
+            user.email,
+            'Event Registration Successful',
+            'You have successfully registered for the event!'
+          );
+
+
+
         // Return success message
-        res.status(200).json({ message: "Successfully registered for the event" });
+        res.status(200).json({ message: "Successfully registered for the event and email sent" });
 
     } catch (error) {
         console.error("❌ Error registering for event:", error);
@@ -303,7 +326,23 @@ router.delete("/:eventId/withdraw", verifyToken, async (req, res) => {
             event.save()
         ]);
 
+        const emailContent = `Hello ${user.name},\n\nYour registration for the event "${event.title}" has been successfully cancelled.\n\nEvent Details:\n- Date: ${event.date}\n- Time: ${event.time}\n- Location: ${event.location}\n\nIf you have any questions or need assistance, feel free to contact us.`;
+
+        // Send the email
+        await sendEmail(user.email, 'Event Registration Cancelled', emailContent);
+
+        // Save email details to MongoDB
+        const emailData = new Email({
+            userId: user._id,
+            eventId: event._id,
+            emailType: 'withdrawal',
+            subject: 'Event Registration Cancelled',
+            content: emailContent
+        });
+        await emailData.save();
+
         console.log("✅ User and event updated after withdrawal");
+
         res.status(200).json({ message: "Successfully withdrawn from the event" });
 
     } catch (error) {

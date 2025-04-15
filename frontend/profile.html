@@ -1,253 +1,474 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile | Eventify</title>
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Your CSS goes here */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile | Eventify</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: relative;
+    }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            position: relative;
-        }
+    .profile-section {
+      width: 100%;
+      position: relative;
+    }
 
-        .profile-section {
-            width: 100%;
-            position: relative;
-        }
+    .logout-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
 
-        .logout-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+    .logout-btn:hover {
+      background-color: #0056b3;
+    }
 
-        .logout-btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    .support-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .support-btn:hover {
+      background-color: #218838;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #c3ebeb;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 50%;
+    }
+
+    .close {
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .event-card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+
+    .navbar {
+      width: 100%;
+      padding: 15px 30px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+      position: sticky;
+      top: 0;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 28px;
+      color: #007bff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .update-profile-section {
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    input.invalid {
+      border: 1px solid red;
+    }
+  </style>
 </head>
-<body>
-    <div class="container">
-        <div class="profile-section">
-            <h2>My Profile</h2>
-            <div id="userInfo"></div>
-            
-            <h3>Registered Events</h3>
-            <div id="registeredEvents"></div>
+<body onload="fetchUserProfile(); fetchEvents();">
+    <div class="navbar">
+        <h1 class="brand">Eventify</h1>
+      </div>
+      
+  <div class="container">
+    <div class="profile-section">
+      <h2>My Profile</h2>
+      <div id="userInfo"></div>
 
-            <button class="logout-btn" onclick="logout()">Logout</button>
-            
-        </div>
+      <h3>Registered Events</h3>
+      <div id="registeredEvents"></div>
 
-        <div class="update-profile-section">
-            <h3>Update Profile</h3>
-            <form id="updateForm">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required><br><br>
-
-                <label for="age">Age:</label>
-                <input type="number" id="age" name="age" required><br><br>
-
-                <label for="gender">Gender:</label>
-                <select id="gender" name="gender" required>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select><br><br>
-
-                <button type="submit">Update</button>
-            </form>
-        </div>
-
-        <div class="events-list">
-            <h3>Available Events</h3>
-            <div id="events-list"></div>
-        </div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+      <button class="support-btn" onclick="openModal()">Support</button>
     </div>
 
-    <script>
-        async function fetchUserProfile() {
-            const token = localStorage.getItem('token'); // ✅ Get JWT token
+    <div class="update-profile-section">
+      <h3>Update Profile</h3>
+      <form id="updateForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" pattern="[A-Za-z ]+" title="Only alphabets and spaces allowed">
+        <div id="nameError" class="error-message"></div><br><br>
 
-            if (!token) {
-                alert("Unauthorized! Please login.");
-                window.location.href = "login.html";
-                return;
-            }
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" min="1" max="120">
+        <div id="ageError" class="error-message"></div><br><br>
 
-            try {
-                // ✅ Fetch user profile
-                const response = await fetch('http://localhost:5000/api/profiles', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` } // ✅ Send JWT token
-                });
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender">
+          <option value="">-- Select Gender --</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+        <div id="genderError" class="error-message"></div><br><br>
 
-                if (!response.ok) throw new Error("Failed to fetch profile");
+        <button type="submit">Update</button>
+      </form>
+    </div>
 
-                const user = await response.json();
-                document.getElementById("userInfo").innerHTML = `
-                    <p>Email: ${user.email}</p>
-                    <p>Name: ${user.name}</p>
-                    <p>Age: ${user.age}</p>
-                    <p>Gender: ${user.gender}</p>
-                `;
+    <div class="events-list">
+      <h3>Available Events</h3>
+      <div id="events-list"></div>
+    </div>
+  </div>
 
-                // ✅ Fetch registered events
-                const eventsResponse = await fetch('http://localhost:5000/api/events/registered', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+  <!-- Support Modal -->
+  <div id="supportModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3>Support Form</h3>
+      <form id="supportForm">
+        <label for="supportName">Name:</label>
+        <input type="text" id="supportName" name="supportName" required><br><br>
 
-                if (!eventsResponse.ok) throw new Error("Failed to fetch events");
+        <label for="supportEmail">Email:</label>
+        <input type="email" id="supportEmail" name="supportEmail" required><br><br>
 
-                const events = await eventsResponse.json();
-                const container = document.getElementById("registeredEvents");
-                container.innerHTML = "";
+        <label for="supportQuery">Query:</label><br>
+        <textarea id="supportQuery" name="supportQuery" rows="5" cols="50" required></textarea><br><br>
 
-                events.forEach(event => {
-    const eventCard = document.createElement("div");
-    eventCard.classList.add("event-card");
-    eventCard.innerHTML = `
-        <h4>${event.title}</h4>
-        <p><strong>Category:</strong> ${event.category}</p>
-        <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
-        <p><strong>Location:</strong> ${event.location}</p>
-        <p><strong>Capacity:</strong> ${event.capacity}</p>
-        <button onclick="withdraw('${event._id}')">Withdraw</button>
-    `;
-    container.appendChild(eventCard);
-});
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
 
-            } catch (error) {
-                console.error("Error fetching profile:", error);
-                alert("Error fetching profile.");
-            }
+  <script>
+    // Load current user data into form
+    async function loadCurrentUserData() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await fetch('http://localhost:5000/api/profiles', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const user = await response.json();
+          document.getElementById('name').value = user.name || '';
+          document.getElementById('age').value = user.age || '';
+          document.getElementById('gender').value = user.gender || '';
         }
+      } catch (error) {
+        console.error("Error loading user data:", error);
+      }
+    }
 
-        async function withdraw(eventId) {
-            const token = localStorage.getItem('token');
+    async function fetchUserProfile() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert("Unauthorized! Please login.");
+        window.location.href = "login.html";
+        return;
+      }
 
-            try {
-                const response = await fetch(`http://localhost:5000/api/events/${eventId}/withdraw`, {
-                    method: "DELETE",
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+      try {
+        const response = await fetch('http://localhost:5000/api/profiles', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
 
-                if (response.ok) {
-                    alert("You have withdrawn from the event.");
-                    fetchUserProfile();
-                } else {
-                    alert("Failed to withdraw from the event.");
-                }
-            } catch (error) {
-                console.error("Error withdrawing from event:", error);
-            }
+        if (!response.ok) throw new Error("Failed to fetch profile");
+
+        const user = await response.json();
+        //not showing undefined anywhere 
+        document.getElementById("userInfo").innerHTML = `
+          <p>Email: ${user.email}</p>
+  <p>Name: ${user.name || ''}</p>
+  <p>Age: ${user.age || ''}</p>
+  <p>Gender: ${user.gender || ''}</p>
+        `;
+
+        // Load current data into form
+        loadCurrentUserData();
+
+        const eventsResponse = await fetch('http://localhost:5000/api/events/registered', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!eventsResponse.ok) throw new Error("Failed to fetch events");
+
+        const events = await eventsResponse.json();
+        const container = document.getElementById("registeredEvents");
+        container.innerHTML = "";
+
+        events.forEach(event => {
+          const eventCard = document.createElement("div");
+          eventCard.classList.add("event-card");
+          eventCard.innerHTML = `
+            <h4>${event.title}</h4>
+            <p><strong>Category:</strong> ${event.category}</p>
+            <p><strong>Date:</strong> ${new Date(event.date).toLocaleDateString()}</p>
+            <p><strong>Location:</strong> ${event.location}</p>
+            <p><strong>Capacity:</strong> ${event.capacity}</p>
+            <button onclick="withdraw('${event._id}')">Withdraw</button>
+          `;
+          container.appendChild(eventCard);
+        });
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        alert("Error fetching profile.");
+      }
+    }
+
+    async function withdraw(eventId) {
+      const token = localStorage.getItem('token');
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/events/${eventId}/withdraw`, {
+          method: "DELETE",
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          alert("You have withdrawn from the event.");
+          fetchUserProfile();
+        } else {
+          alert("Failed to withdraw from the event.");
         }
+      } catch (error) {
+        console.error("Error withdrawing from event:", error);
+      }
+    }
 
-        async function registerForEvent(eventId) {
-    const token = localStorage.getItem('token');
-    console.log("Attempting to register for event:", eventId);
-
-    try {
-        console.log("Sending registration request to API...");
+    async function registerForEvent(eventId) {
+      const token = localStorage.getItem('token');
+      try {
         const response = await fetch(`http://localhost:5000/api/events/${eventId}/register`, {
-            method: "POST",
-            headers: { 'Authorization': `Bearer ${token}` }
+          method: "POST",
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
         const responseData = await response.json();
-        console.log("Registration API response:", responseData);
 
         if (response.ok) {
-            alert("Successfully registered for the event!");
-            fetchUserProfile(); // To update the registered events list
+          alert("Successfully registered for the event!");
+          fetchUserProfile();
         } else {
-            alert(`Failed to register for the event: ${responseData.message}`);
+          alert(`Failed to register for the event: ${responseData.message}`);
         }
-    } catch (error) {
+      } catch (error) {
         console.error("Error registering for event:", error);
         alert("Error connecting to the server");
+      }
     }
-}
 
-        async function fetchEvents() {
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetch('http://localhost:5000/api/events', {
-                    method: 'GET',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (!response.ok) throw new Error("Failed to fetch events");
-
-                const events = await response.json();
-                const eventsList = document.getElementById("events-list");
-                eventsList.innerHTML = ""; // Clear previous events
-
-                events.forEach(event => {
-                    if (event.organizerId) { // Ensure the event has an organizer ID
-                        const eventCard = document.createElement("div");
-                        eventCard.classList.add("event-card");
-                        eventCard.innerHTML = `
-                            <h4>${event.title}</h4>
-                            <p><strong>Category:</strong> ${event.category}</p>
-                            <p><strong>Date:</strong> ${event.date}</p>
-                            <p><strong>Location:</strong> ${event.location}</p>
-                            <p><strong>Capacity:</strong> ${event.capacity}</p>
-                            <button onclick="registerForEvent('${event._id}')">Register</button>
-                        `;
-                        eventsList.appendChild(eventCard);
-                    }
-                });
-            } catch (error) {
-                console.error("Error loading events:", error);
-            }
-        }
-
-        document.getElementById("updateForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const token = localStorage.getItem('token');
-            const name = document.getElementById('name').value;
-            const age = document.getElementById('age').value;
-            const gender = document.getElementById('gender').value;
-
-            try {
-                const response = await fetch('http://localhost:5000/api/profiles', {
-                    method: 'PUT',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, age, gender })
-                });
-
-                if (response.ok) {
-                    alert("Profile updated successfully!");
-                    fetchUserProfile(); // To refresh user details
-                } else {
-                    alert("Failed to update profile.");
-                }
-            } catch (error) {
-                console.error("Error updating profile:", error);
-            }
+    async function fetchEvents() {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch('http://localhost:5000/api/events', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        function logout() {
-            localStorage.removeItem('token'); // ✅ Remove JWT token
-            window.location.href = "login.html";
-        }
+        if (!response.ok) throw new Error("Failed to fetch events");
 
-        // Fetch user profile and events when the page is loaded
-        fetchUserProfile();
-        fetchEvents();
-    </script>
+        const events = await response.json();
+        const eventsList = document.getElementById("events-list");
+        eventsList.innerHTML = "";
+
+        events.forEach(event => {
+          if (event.organizerId) {
+            const eventCard = document.createElement("div");
+            eventCard.classList.add("event-card");
+            eventCard.innerHTML = `
+              <h4>${event.title}</h4>
+              <p><strong>Category:</strong> ${event.category}</p>
+              <p><strong>Date:</strong> ${event.date}</p>
+              <p><strong>Location:</strong> ${event.location}</p>
+              <p><strong>Capacity:</strong> ${event.capacity}</p>
+              <button onclick="registerForEvent('${event._id}')">Register</button>
+            `;
+            eventsList.appendChild(eventCard);
+          }
+        });
+      } catch (error) {
+        console.error("Error loading events:", error);
+      }
+    }
+
+    // Form validation
+    function validateForm() {
+      let isValid = true;
+      
+      // Clear previous errors
+      document.getElementById('nameError').textContent = '';
+      document.getElementById('ageError').textContent = '';
+      document.getElementById('genderError').textContent = '';
+      
+      const name = document.getElementById('name').value;
+      const age = document.getElementById('age').value;
+      const gender = document.getElementById('gender').value;
+      
+      // Validate name (if provided)
+      if (name && !/^[A-Za-z ]+$/.test(name)) {
+        document.getElementById('nameError').textContent = 'Name can only contain letters and spaces';
+        document.getElementById('name').classList.add('invalid');
+        isValid = false;
+      } else {
+        document.getElementById('name').classList.remove('invalid');
+      }
+      
+      // Validate age (if provided)
+      if (age && (isNaN(age) || age < 1 || age > 120)) {
+        document.getElementById('ageError').textContent = 'Age must be a number between 1 and 120';
+        document.getElementById('age').classList.add('invalid');
+        isValid = false;
+      } else {
+        document.getElementById('age').classList.remove('invalid');
+      }
+      
+      // At least one field must be provided
+      if (!name && !age && !gender) {
+        alert('Please provide at least one field to update');
+        isValid = false;
+      }
+      
+      return isValid;
+    }
+
+    document.getElementById("updateForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!validateForm()) {
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      const name = document.getElementById('name').value;
+      const age = document.getElementById('age').value;
+      const gender = document.getElementById('gender').value;
+
+      // Create payload with only provided fields
+      const payload = {};
+      if (name) payload.name = name;
+      if (age) payload.age = age;
+      if (gender) payload.gender = gender;
+
+      try {
+        const response = await fetch('http://localhost:5000/api/profiles', {
+          method: 'PUT',
+          headers: { 
+            'Authorization': `Bearer ${token}`, 
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          alert("Profile updated successfully!");
+          fetchUserProfile();
+        } else {
+          const errorData = await response.json();
+          alert(errorData.message || "Failed to update profile.");
+        }
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        alert("Error connecting to the server");
+      }
+    });
+
+    document.getElementById("supportForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("supportName").value;
+      const email = document.getElementById("supportEmail").value;
+      const query = document.getElementById("supportQuery").value;
+
+      try {
+        const response = await fetch('http://localhost:5000/api/support', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ name, email, query })
+        });
+
+        if (response.ok) {
+          alert("Support request submitted successfully!");
+          closeModal();
+          document.getElementById("supportForm").reset();
+        } else {
+          alert("Failed to submit support request.");
+        }
+      } catch (err) {
+        console.error("Error submitting support form:", err);
+        alert("An error occurred.");
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = "login.html";
+    }
+
+    function openModal() {
+      document.getElementById("supportModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("supportModal").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("supportModal");
+      if (event.target === modal) {
+        closeModal();
+      }
+    };
+  </script>
 </body>
 </html>

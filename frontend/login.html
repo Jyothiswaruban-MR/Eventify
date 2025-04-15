@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="navbar">
+        <h1 class="brand">Eventify</h1>
+        <ul>
+            <li><a href="dashboard.html">Dashboard</a></li>
+        </ul>
+      </div>
+      
     <h2>Login</h2>
     <form id="loginForm">
         <label for="email">Email:</label>
@@ -27,8 +34,13 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
+            if (!email.includes('@') || !email.endsWith('.com')) {
+                alert('Please enter a valid email address ending with .com');
+                return;
+            }
+
             try {
-                const response = await fetch('http://localhost:5000/api/auth/login', { // ✅ Correct API URL
+                const response = await fetch('http://localhost:5000/api/auth/login', { 
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -37,13 +49,13 @@
                 if (!response.ok) throw new Error("Login failed");
 
                 const data = await response.json();
-                localStorage.setItem('token', data.token);  // ✅ Store JWT token in localStorage
+                localStorage.setItem('token', data.token);  
 
-                // ✅ Decode JWT to get role
+                // Decode JWT to get role
                 const tokenPayload = JSON.parse(atob(data.token.split('.')[1]));
                 const role = tokenPayload.role;
 
-                // ✅ Redirect based on user role
+                //  Redirect based on user role
                 if (role === 'participant') {
                     window.location.href = 'profile.html';
                 } else if (role === 'organizer') {

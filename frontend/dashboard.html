@@ -4,7 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Eventify</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h2, h3 {
+            color: #333;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            gap: 15px;
+            background-color: #004aad;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        nav ul li {
+            display: inline;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #search-bar {
+            margin: 20px 0;
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .event-card {
+            background-color: #ffffff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .event-card h4 {
+            margin: 0 0 10px;
+            color: #004aad;
+        }
+
+        .event-card p {
+            margin: 5px 0;
+        }
+
+        .event-card button {
+            padding: 8px 12px;
+            background-color: #004aad;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .event-card button:hover {
+            background-color: #00357f;
+        }
+    </style>
 </head>
 <body>
     <h2>Welcome to Eventify</h2>
@@ -17,41 +90,66 @@
         </ul>
     </nav>
 
+    <input type="text" id="search-bar" placeholder="Search events by title, category, date or location..." />
+
     <h3>Upcoming Events</h3>
     <div id="events-list">
         <!-- Events will be dynamically loaded here -->
     </div>
 
-    <script src="api.js"></script>
     <script>
+        let allEvents = [];
+
         document.addEventListener("DOMContentLoaded", async () => {
             try {
-                const response = await fetch("http://localhost:5000/api/events"); // API call to get all events
+                const response = await fetch("http://localhost:5000/api/events");
                 const events = await response.json();
-
-                const eventsList = document.getElementById("events-list");
-                events.forEach(event => {
-                    const eventCard = document.createElement("div");
-                    eventCard.classList.add("event-card");
-                    eventCard.innerHTML = `
-                        <h4>${event.title}</h4>
-                        <p><strong>Category:</strong> ${event.category}</p>
-                        <p><strong>Date:</strong> ${event.date}</p>
-                        <p><strong>Location:</strong> ${event.location}</p>
-                        <p><strong>Capacity:</strong> ${event.capacity}</p>
-                        <button onclick="registerForEvent('${event._id}')">Register</button>
-                    `;
-                    eventsList.appendChild(eventCard);
-                });
+                allEvents = events;
+                displayEvents(events);
             } catch (error) {
                 console.error("Error loading events:", error);
             }
         });
 
+        function displayEvents(events) {
+            const eventsList = document.getElementById("events-list");
+            eventsList.innerHTML = "";
+
+            if (events.length === 0) {
+                eventsList.innerHTML = "<p>No events found.</p>";
+                return;
+            }
+
+            events.forEach(event => {
+                const eventCard = document.createElement("div");
+                eventCard.classList.add("event-card");
+                eventCard.innerHTML = `
+                    <h4>${event.title}</h4>
+                    <p><strong>Category:</strong> ${event.category}</p>
+                    <p><strong>Date:</strong> ${event.date}</p>
+                    <p><strong>Location:</strong> ${event.location}</p>
+                    <p><strong>Capacity:</strong> ${event.capacity}</p>
+                    <button onclick="registerForEvent('${event._id}')">Register</button>
+                `;
+                eventsList.appendChild(eventCard);
+            });
+        }
+
+        document.getElementById("search-bar").addEventListener("input", () => {
+            const searchTerm = document.getElementById("search-bar").value.toLowerCase();
+            const filteredEvents = allEvents.filter(event => 
+                event.title.toLowerCase().includes(searchTerm) ||
+                event.category.toLowerCase().includes(searchTerm) ||
+                event.location.toLowerCase().includes(searchTerm) ||
+                event.date.toLowerCase().includes(searchTerm)
+            );
+            displayEvents(filteredEvents);
+        });
+
         function registerForEvent(eventId) {
             const userId = localStorage.getItem("userId");
             if (!userId) {
-                window.location.href = "login.html"; // Redirect to login if not logged in
+                window.location.href = "login.html"; // Redirect if not logged in
             } else {
                 fetch(`http://localhost:5000/events/${eventId}/register/${userId}`, {
                     method: "POST",

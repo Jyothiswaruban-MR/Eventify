@@ -1,10 +1,22 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const supportSchema = new mongoose.Schema({
-    userId:{type: mongoose.Schema.Types.ObjectId, ref:"users"},
-    query:{type: String, required: true},
-    response:{type: String, default: null},
-    isResolved:{type: Boolean, default: false}
+const supportRequestSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    email: {
+        type: String,
+        required: true,
+    },
+    query: {
+        type: String,
+        required: true,
+    },
+    submittedAt: {
+        type: Date,
+        default: Date.now,
+    }
 });
 
-module.exports = mongoose.model("Support",supportSchema);
+module.exports = mongoose.model('SupportRequest', supportRequestSchema);

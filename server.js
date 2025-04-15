@@ -23,6 +23,9 @@ app.use(bodyParser.json());
 // Import routes
 const eventRoutes = require("./routes/event");
 const profileRoutes = require("./routes/profile");
+const supportRoutes = require('./routes/supportRoutes');
+
+app.use('/api/support', supportRoutes);
 
 // Use routes
 app.use("/api/events", eventRoutes);
@@ -31,7 +34,7 @@ app.use("/api/profiles", profileRoutes);
 // Register route
 app.post("/api/auth/register", async (req, res) => {
     try {
-        const { email, password, role, isApproved, organizationId } = req.body;
+        const {name, email, password, role, isApproved, organizationId } = req.body;
 
         // Check if user exists
         const existingUser = await User.findOne({ email });
@@ -45,7 +48,7 @@ app.post("/api/auth/register", async (req, res) => {
         //console.log("Hashed Password:", hashedPassword);
 
         // Create new user
-        const newUser = new User({ email, password, role, isApproved, organizationId });
+        const newUser = new User({name, email, password, role, isApproved, organizationId });
         await newUser.save();
         res.status(201).json({ message: "User registered successfully" });
     } catch (error) {

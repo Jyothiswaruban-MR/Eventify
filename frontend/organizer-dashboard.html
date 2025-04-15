@@ -75,9 +75,32 @@
             cursor: pointer;
             font-size: 20px;
         }
+        .navbar {
+  width: 100%;
+  padding: 15px 30px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  margin: 0;
+  font-size: 28px;
+  color: #007bff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <h1 class="brand">Eventify</h1>
+      </div>
+      
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h1>My Events</h1>
@@ -213,16 +236,55 @@ async function deleteEvent(eventId) {
         // Update event
         document.getElementById("editEventForm").addEventListener("submit", async function (e) {
             e.preventDefault();
+            const title = document.getElementById("editTitle").value.trim();
+    const category = document.getElementById("editCategory").value.trim();
+    const date = document.getElementById("editDate").value;
+    const time = document.getElementById("editTime").value;
+    const location = document.getElementById("editLocation").value.trim();
+    const description = document.getElementById("editDescription").value.trim();
+    const capacity = document.getElementById("editCapacity").value;
             const eventId = document.getElementById("eventId").value;
-            const updatedEvent = {
-                title: document.getElementById("editTitle").value,
-                category: document.getElementById("editCategory").value,
-                date: document.getElementById("editDate").value,
-                time: document.getElementById("editTime").value,
-                location: document.getElementById("editLocation").value,
-                description: document.getElementById("editDescription").value,
-                capacity: document.getElementById("editCapacity").value
-            };
+            
+
+            const alphaRegex = /^[A-Za-z\s]+$/;
+
+    if (!alphaRegex.test(title) || title.length < 10) {
+        alert("Title must be at least 10 characters and contain only alphabets.");
+        return;
+    }
+
+    if (!alphaRegex.test(category)) {
+        alert("Category must contain only alphabets.");
+        return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    if (date < today) {
+        alert("Date cannot be in the past.");
+        return;
+    }
+
+    if (!time) {
+        alert("Time is required.");
+        return;
+    }
+
+    if (!alphaRegex.test(location)) {
+        alert("Location must contain only alphabets.");
+        return;
+    }
+
+    if (!alphaRegex.test(description)) {
+        alert("Description must contain only alphabets.");
+        return;
+    }
+
+    if (!/^\d+$/.test(capacity) || parseInt(capacity) <= 0) {
+        alert("Capacity must be a number greater than 0.");
+        return;
+    }
+    const updatedEvent = { title, category, date, time, location, description, capacity };
+
 
             await fetch(`${API_URL}/${eventId}`, {
                 method: "PUT",

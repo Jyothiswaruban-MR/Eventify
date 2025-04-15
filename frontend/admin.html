@@ -81,6 +81,12 @@
             justify-content: center;
             text-align: center;
         }
+        .logout-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
 
         /* Responsive Styling */
         @media (max-width: 768px) {
@@ -88,10 +94,38 @@
                 width: 90%;
             }
         }
+
+        .navbar {
+  width: 100%;
+  padding: 15px 30px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  margin: 0;
+  font-size: 28px;
+  color: #007bff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
     </style>
 </head>
 <body>
-
+    
+      
+    <div class="logout-container">
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+    <div class="navbar">
+        <h1 class="brand">Eventify</h1>
+      </div>
+    
     <div class="content">
         <h2>Admin Dashboard</h2>
         <h3>Pending Organizer Approvals</h3>
@@ -109,8 +143,21 @@
 
         <div>
             <button onclick="approveSelectedOrganizers()">Approve Selected</button>
-            <button class="logout" onclick="logout()">Logout</button>
         </div>
+        
+        <!-- New Section to Display Support Requests -->
+        <h3>Pending Support Requests</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Query</th>
+                </tr>
+            </thead>
+            <tbody id="supportRequestList"></tbody>
+        </table>
     </div>
 
     <script>
@@ -186,12 +233,53 @@
             }
         }
 
+        async function fetchSupportRequests() {
+            const token = localStorage.getItem('token'); // Get JWT Token
+
+            if (!token) {
+                alert("Unauthorized! Please login.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                // Fetch support requests
+                const response = await fetch('http://localhost:5000/api/support', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error("Failed to fetch support requests");
+
+                const supportRequests = await response.json();
+                const container = document.getElementById("supportRequestList");
+                container.innerHTML = "";
+
+                supportRequests.forEach(req => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><input type="checkbox" class="support-checkbox" value="${req._id}"></td>
+                        <td>${req.name}</td>
+                        <td>${req.email}</td>
+                        <td>${req.query}</td>
+                    `;
+                    container.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error("Error fetching support requests:", error);
+                alert("Error loading support requests.");
+            }
+        }
+
         function logout() {
             localStorage.removeItem('token'); // Remove JWT
             window.location.href = "login.html";
         }
 
+        // Fetch the data on page load
         fetchPendingOrganizers();
+        fetchSupportRequests();
     </script>
 </body>
 </html>
