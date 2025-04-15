@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support | Eventify</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Contact Support</h2>
+    <form id="supportForm">
+        <input type="text" id="name" placeholder="Your Name" required>
+        <input type="email" id="email" placeholder="Your Email" required>
+        <textarea id="message" placeholder="Your Message" required></textarea>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script src="api.js"></script>
+    <script>
+        document.getElementById("supportForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const message = document.getElementById("message").value;
+
+            const response = await fetch(`${API_URL}/support`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, message })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert("Support request submitted successfully.");
+                document.getElementById("supportForm").reset();
+            } else{
+                alert("Failed to submit request.");
+            }
+        });
+    </script>
+</body>
+</html>

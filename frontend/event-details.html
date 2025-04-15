@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details | Eventify</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Event Details</h2>
+    <div id="eventDetails"></div>
+    <button id="registerBtn">Register</button>
+
+    <script src="api.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const eventId = params.get("id");
+
+        async function fetchEventDetails() {
+            const response = await fetch(`${API_URL}/events/${eventId}`);
+            const event = await response.json();
+            document.getElementById("eventDetails").innerHTML = `
+                <h3>${event.name}</h3>
+                <p>${event.description}</p>
+                <p>Seats Available: ${event.capacity - event.attendees.length}</p>
+            `;
+        }
+
+        document.getElementById("registerBtn").addEventListener("click", async () => {
+            const response = await fetch(`${API_URL}/events/${eventId}/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert("Registration successful! Check your email for confirmation.");
+            } else {
+                alert("Registration failed.");
+            }
+        });
+
+        fetchEventDetails();
+    </script>
+</body>
+</html>

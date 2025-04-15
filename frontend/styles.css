@@ -1,0 +1,210 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to right, #2b5876, #4e4376);
+    color: white;
+    text-align: center;
+}
+
+/* Container */
+.container {
+    width: 90%;
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Header */
+header {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+    color: #ffcc00; /* Highlighted text */
+}
+
+header span {
+    color: #ffcc00;
+}
+
+header p {
+    font-size: 18px;
+    opacity: 0.8;
+}
+
+/* Navigation Menu */
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav ul li a {
+    text-decoration: none;
+    padding: 12px 20px;
+    background: #ffcc00;
+    color: #333;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+nav ul li a:hover {
+    background: #ff9900;
+    color: white;
+}
+
+/* Hero Section */
+.hero {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+.hero h2 {
+    font-size: 28px;
+    color: #ffcc00;
+}
+
+.hero p {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* Explore Events Button */
+.btn {
+    display: inline-block;
+    padding: 12px 20px;
+    margin-top: 10px;
+    background: #ffcc00;
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #ff9900;
+    color: white;
+}
+
+/* Form Styling */
+form {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    display: inline-block;
+    text-align: left;
+}
+
+form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+form input, form select, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+form button {
+    width: 100%;
+    padding: 10px;
+    background: #ffcc00;
+    color: #333;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+form button:hover {
+    background: #ff9900;
+    color: white;
+}
+
+/* Events List */
+.event-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* Event Card */
+#events-list {
+    display: grid; /* Enable grid layout */
+    grid-template-columns: repeat(4, 1fr); /* Create 4 equal columns */
+    gap: 20px; /* Space between the cards */
+    margin-top: 20px;
+}
+
+.event-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.event-card h4 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.event-card p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.event-card button {
+    background-color: blue;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.event-card button:hover {
+    background-color: darkblue;
+}
+
+/* Footer */
+footer {
+    margin-top: 30px;
+    opacity: 0.7;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media screen and (max-width: 600px) {
+    nav ul {
+        flex-direction: column;
+    }
+    .event-list {
+        flex-direction: column;
+    }
+}

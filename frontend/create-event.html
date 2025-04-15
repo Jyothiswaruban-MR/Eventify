@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        input, textarea, select { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 8px 0; 
+            box-sizing: border-box; 
+        }
+        button { 
+            padding: 12px; 
+            border: none; 
+            width: 100%; 
+            cursor: pointer; 
+            font-size: 16px;
+        }
+        .create-btn { background: #4CAF50; color: white; } /* Green for create */
+        .update-btn { background: #007BFF; color: white; } /* Blue for update */
+    </style>
+</head>
+<body>
+    <h1 id="formTitle">Create New Event</h1>
+    <form id="eventForm">
+        <input type="text" id="title" placeholder="Event Title" required>
+        <input type="text" id="category" placeholder="Category" required>
+        <input type="date" id="date" required>
+        <input type="time" id="time" required>
+        <input type="text" id="location" placeholder="Location" required>
+        <textarea id="description" placeholder="Description" rows="4" required></textarea>
+        <input type="number" id="capacity" placeholder="Capacity" min="1" required>
+        <button type="submit" id="submitBtn" class="create-btn">Create Event</button>
+    </form>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api/events';
+        const token = localStorage.getItem('token');
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+        const isEditMode = !!eventId;
+
+        if (!token) window.location.href = 'login.html';
+
+        // Load event data if in edit mode
+        if (isEditMode) {
+            document.getElementById('formTitle').textContent = 'Edit Event';
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.textContent = 'Update Event';
+            submitBtn.classList.remove('create-btn');
+            submitBtn.classList.add('update-btn'); 
+
+            fetch(`${API_URL}/${eventId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(event => {
+                document.getElementById('title').value = event.title;
+                document.getElementById('category').value = event.category;
+                document.getElementById('date').value = new Date(event.date).toISOString().split('T')[0];
+                document.getElementById('time').value = event.time;
+                document.getElementById('location').value = event.location;
+                document.getElementById('description').value = event.description;
+                document.getElementById('capacity').value = event.capacity;
+            })
+            .catch(err => {
+                alert('Error loading event');
+                console.error(err);
+            });
+        }
+
+        // Form submission
+        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const eventData = {
+                title: document.getElementById('title').value,
+                category: document.getElementById('category').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                location: document.getElementById('location').value,
+                description: document.getElementById('description').value,
+                capacity: document.getElementById('capacity').value
+            };
+
+            try {
+                const url = isEditMode ? `${API_URL}/${eventId}` : API_URL;
+                const method = isEditMode ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(eventData)
+                });
+
+                const data = await res.json();
+                alert(isEditMode ? 'Event updated successfully!' : 'Event created successfully!');
+                window.location.href = 'organizer-dashboard.html';
+            } catch (err) {
+                alert('Error saving event');
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>

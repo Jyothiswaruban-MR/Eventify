@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Eventify</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h2>Welcome to Eventify</h2>
+
+    <nav>
+        <ul>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="register.html">Register</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+    </nav>
+
+    <h3>Upcoming Events</h3>
+    <div id="events-list">
+        <!-- Events will be dynamically loaded here -->
+    </div>
+
+    <script src="api.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const response = await fetch("http://localhost:5000/api/events"); // API call to get all events
+                const events = await response.json();
+
+                const eventsList = document.getElementById("events-list");
+                events.forEach(event => {
+                    const eventCard = document.createElement("div");
+                    eventCard.classList.add("event-card");
+                    eventCard.innerHTML = `
+                        <h4>${event.title}</h4>
+                        <p><strong>Category:</strong> ${event.category}</p>
+                        <p><strong>Date:</strong> ${event.date}</p>
+                        <p><strong>Location:</strong> ${event.location}</p>
+                        <p><strong>Capacity:</strong> ${event.capacity}</p>
+                        <button onclick="registerForEvent('${event._id}')">Register</button>
+                    `;
+                    eventsList.appendChild(eventCard);
+                });
+            } catch (error) {
+                console.error("Error loading events:", error);
+            }
+        });
+
+        function registerForEvent(eventId) {
+            const userId = localStorage.getItem("userId");
+            if (!userId) {
+                window.location.href = "login.html"; // Redirect to login if not logged in
+            } else {
+                fetch(`http://localhost:5000/events/${eventId}/register/${userId}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                })
+                .then(response => response.json())
+                .then(data => alert(data.message))
+                .catch(error => console.error("Error registering:", error));
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("userId");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+</html>
